@@ -4,7 +4,8 @@ Create (or add to existing) blockchain of randomised strings as data; blocks mad
 ## Version 1.1.0, October 2018
 Create or add to an existing Blockchain; chain name provided by the user which is stored in a Postgres database.
 
-The next version will:
+The next version will
+
 * allow a user to upload from a file as data as opposed to random strings
 * tested as a module import
 * custom exception handling
