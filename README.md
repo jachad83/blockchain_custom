@@ -1,5 +1,9 @@
 # Blockchain; personal, custom 
-Create (or add to existing) blockchain of randomised strings as data; blocks made up of index, datetime, data, previous block hash and current block hash.
+Create (or add to an existing) blockchain of randomised strings as data; blocks made up of index, datetime, data, previous block hash and current block hash.
+
+##### Notes:
+* I've generally adhered to PEP8, there are some deviations for sake of readability or showing multiple methods to perform a task i.e. string concatenation.
+* Developed on Linux, not tested to any great degree on other OS's.
 
 ## Version 1.1.0, October 2018
 Create or add to an existing Blockchain; chain name provided by the user which is stored in a Postgres database.
@@ -7,9 +11,8 @@ Create or add to an existing Blockchain; chain name provided by the user which i
 The next version will
 
 * allow a user to upload from a file as data as opposed to random strings
-* tested as a module import
+* be tested as a module import
 * custom exception handling
-* PEP 8
 
 ## Version 1.0.0, September 2018
 Blockchain in the example is a list, on my machine it saves to a Postgres database.

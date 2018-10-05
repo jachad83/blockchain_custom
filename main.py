@@ -7,7 +7,7 @@ import string as str_
 import sys
 
 
-# define module variables / database config
+# define module variables / database config; could use a config file, i.e. config.ini
 DBNAME = "blockchains"
 DBUSER = "blockchains_user"
 DBHOST = "localhost"
