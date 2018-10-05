@@ -62,8 +62,8 @@ def blockchain_create(blockchain_name, block_count):
                         # fetch last block from existing blockchain table
                         cur.execute("rollback;")
                         cur.execute("SELECT timestamp, data, previous_hash FROM {} ORDER BY id DESC limit 1;".format(db_table))
-                    except psy.DatabaseError as e:
-                        print(e)
+                    except  psy.Error as e:
+                        print("Block retrieval failure: \n" +str(e))
                         sys.exit(1)
                     # use fetched block to create the first block of blockchain to be added to existing table
                     last_row = cur.fetchone()
@@ -87,8 +87,8 @@ def blockchain_create(blockchain_name, block_count):
             try:
                 cur.execute("INSERT INTO {} (timestamp, data, previous_hash, hash) \
                     VALUES ('{}', '{}', '{}', '{}');".format(db_table, block.timestamp, block.data, block.previous_hash, block.hash))
-            except Exception:
-                print("Error adding block to blockchain table: "+block)
+            except psy.Error as e:
+                print("Error adding block to blockchain table: " + block + "\n" + str(e))
                 sys.exit(1)
 
         conn.commit()
@@ -97,8 +97,8 @@ def blockchain_create(blockchain_name, block_count):
     try:
         conn = psy.connect(host=db_host, database=db_name, user=db_user, password=db_password)
         cur = conn.cursor()
-    except Exception:
-        print("Database connection failure.")
+    except psy.Error as e:
+        print("Database connection failure: \n" + str(e))
         sys.exit(1)
     # try to create new blockchain table
     try:
@@ -107,7 +107,7 @@ def blockchain_create(blockchain_name, block_count):
             data varchar, previous_hash varchar, hash varchar);".format(db_table))
         print("Blockchain not found; creating chain.")
         _db_interaction(True)
-    except Exception:
+    except: # not an error so no exception class
         # blockchain table does exist; adding to existing blockchain
         print("Blockchain found; adding to chain.")
         _db_interaction(False)
@@ -116,10 +116,14 @@ def blockchain_create(blockchain_name, block_count):
 def main():
     # user prompt for blockchain name and number of blocks to add
     blockchain_name_input = input('Enter name of blockchain to create / add to: ')
-    block_count_input = input('Enter number of blocks to add: ')
 
-    # run
-    blockchain_create(blockchain_name_input, int(block_count_input))
+    # check user input for number of blocks is an integer
+    while True:
+        try:
+            block_count_input = int(input('Enter number of blocks to add: '))
+            blockchain_create(blockchain_name_input, int(block_count_input))
+        except ValueError:
+            print('\n' + 'Please enter an integer for number of blocks to add.')
 
 
 if __name__ == "__main__":

@@ -12,7 +12,6 @@ The next version will
 
 * allow a user to upload from a file as data as opposed to random strings
 * be tested as a module import
-* custom exception handling
 
 ## Version 1.0.0, September 2018
 Blockchain in the example is a list, on my machine it saves to a Postgres database.
