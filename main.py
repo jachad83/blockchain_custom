@@ -50,13 +50,12 @@ def blockchain_create(blockchain_name):
 
     def _chain_create(genesis):
         file_data_list = file_capture()
-        count = 2 #int(len(file_data_list))
-        i = 0
+        count = int(len(file_data_list))
 
         # iterate through blocks creation
-        while i < 2:
+        for _ in range(count):
             # initialise the blockchain
-            if i == 0:
+            if _ == 0:
                 if genesis:
                     # start a new blockchain
                     blockchain = [Block(str(date.datetime.now()), "Genesis Block", "0")]
@@ -77,11 +76,9 @@ def blockchain_create(blockchain_name):
                     previous_block = Block(last_row[0], last_row[1], last_row[2])
 
             # add block to blockchain
-            new_block_ = _new_block(file_data_list[i], previous_block)
+            new_block_ = _new_block(file_data_list[_], previous_block)
             blockchain.append(new_block_)
             previous_block = new_block_
-            print(i, file_data_list[i], blockchain)
-            i += 1
 
         return blockchain
 
@@ -91,11 +88,9 @@ def blockchain_create(blockchain_name):
         blockchain_ = _chain_create(create_db)
         # add blockchain blocks sequentially to blockchain database table
         for block in blockchain_:
-            print(block.data.decode('utf-8'))
-            # decoded_data = block.data.decode('utf-8')
             try:
                 cur.execute("INSERT INTO {} (timestamp, data, previous_hash, hash) \
-                    VALUES ('{}', '{}', '{}', '{}');".format(db_table, block.timestamp, block.data.decode('utf-8'), block.previous_hash, block.hash))
+                    VALUES ('{}', '{}', '{}', '{}');".format(db_table, block.timestamp, block.data, block.previous_hash, block.hash))
             except psy.Error as e:
                 print("Error adding block to blockchain table: " + block + "\n" + str(e))
                 sys.exit(1)

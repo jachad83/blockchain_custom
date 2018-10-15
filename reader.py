@@ -15,7 +15,7 @@ def file_capture():
         filelimit_ = FILELIMIT
 
     for _ in range(filelimit_):
-        with open(os.path.join(DATAFOLDER, file_list[_]), 'rb') as afile:
+        with open(os.path.join(DATAFOLDER, file_list[_]), 'r') as afile:
             buffer = afile.read(BUFFERSIZE)
 
             while len(buffer) > 0:
