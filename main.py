@@ -5,6 +5,7 @@ import psycopg2 as psy
 import random as rdm
 import string as str_
 import sys
+from reader import file_capture
 
 
 # define module variables / database config; could use a config file, i.e. config.ini
@@ -25,13 +26,13 @@ class Block:
     # create block hash
     def _hash_block(self):
         hash_string = "{}{}{}".format(self.timestamp, self.data, self.previous_hash)
-        sha = hsh.sha256(hash_string.encode()).hexdigest()
+        sha = hsh.md5(hash_string.encode()).hexdigest()
 
         return sha
 
 
 # takes user input and creates / adds to blockchain table
-def blockchain_create(blockchain_name, block_count):
+def blockchain_create(blockchain_name):
     # could use a config file, i.e. config.ini
     db_name = DBNAME
     db_table = blockchain_name
@@ -40,18 +41,22 @@ def blockchain_create(blockchain_name, block_count):
     db_password = DBPASSWORD
 
     # create a new data block
-    def _new_block(previous_block):
+    def _new_block(data_, previous_block):
         this_timestamp = str(date.datetime.now())
-        this_data = ''.join(rdm.choices(str_.ascii_uppercase + str_.digits, k=30))
-        this_hash = previous_block.hash
+        this_data = data_
+        this_previous_hash = previous_block.hash
 
-        return Block(this_timestamp, this_data, this_hash)
+        return Block(this_timestamp, this_data, this_previous_hash)
 
     def _chain_create(genesis):
+        file_data_list = file_capture()
+        count = 2 #int(len(file_data_list))
+        i = 0
+
         # iterate through blocks creation
-        for _ in range(block_count):
+        while i < 2:
             # initialise the blockchain
-            if _ == 0:
+            if i == 0:
                 if genesis:
                     # start a new blockchain
                     blockchain = [Block(str(date.datetime.now()), "Genesis Block", "0")]
@@ -62,7 +67,7 @@ def blockchain_create(blockchain_name, block_count):
                         # fetch last block from existing blockchain table
                         cur.execute("rollback;")
                         cur.execute("SELECT timestamp, data, previous_hash FROM {} ORDER BY id DESC limit 1;".format(db_table))
-                    except  psy.Error as e:
+                    except psy.Error as e:
                         print("Block retrieval failure: \n" +str(e))
                         sys.exit(1)
                     # use fetched block to create the first block of blockchain to be added to existing table
@@ -72,9 +77,11 @@ def blockchain_create(blockchain_name, block_count):
                     previous_block = Block(last_row[0], last_row[1], last_row[2])
 
             # add block to blockchain
-            new_block_ = _new_block(previous_block)
+            new_block_ = _new_block(file_data_list[i], previous_block)
             blockchain.append(new_block_)
             previous_block = new_block_
+            print(i, file_data_list[i], blockchain)
+            i += 1
 
         return blockchain
 
@@ -84,9 +91,11 @@ def blockchain_create(blockchain_name, block_count):
         blockchain_ = _chain_create(create_db)
         # add blockchain blocks sequentially to blockchain database table
         for block in blockchain_:
+            print(block.data.decode('utf-8'))
+            # decoded_data = block.data.decode('utf-8')
             try:
                 cur.execute("INSERT INTO {} (timestamp, data, previous_hash, hash) \
-                    VALUES ('{}', '{}', '{}', '{}');".format(db_table, block.timestamp, block.data, block.previous_hash, block.hash))
+                    VALUES ('{}', '{}', '{}', '{}');".format(db_table, block.timestamp, block.data.decode('utf-8'), block.previous_hash, block.hash))
             except psy.Error as e:
                 print("Error adding block to blockchain table: " + block + "\n" + str(e))
                 sys.exit(1)
@@ -117,13 +126,7 @@ def main():
     # user prompt for blockchain name and number of blocks to add
     blockchain_name_input = input('Enter name of blockchain to create / add to: ')
 
-    # check user input for number of blocks is an integer
-    while True:
-        try:
-            block_count_input = int(input('Enter number of blocks to add: '))
-            blockchain_create(blockchain_name_input, int(block_count_input))
-        except ValueError:
-            print('\n' + 'Please enter an integer for number of blocks to add.')
+    blockchain_create(blockchain_name_input)
 
 
 if __name__ == "__main__":
