@@ -2,8 +2,6 @@
 import hashlib as hsh
 import datetime as date
 import psycopg2 as psy
-import random as rdm
-import string as str_
 import sys
 from reader import file_capture
 
