@@ -31,7 +31,6 @@ class Block:
 
 # takes user input and creates / adds to blockchain table
 def blockchain_create(blockchain_name):
-    # could use a config file, i.e. config.ini
     db_name = DBNAME
     db_table = blockchain_name
     db_user = DBUSER

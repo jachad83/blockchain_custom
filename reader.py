@@ -6,22 +6,21 @@ DATAFOLDER = 'data'
 
 
 def file_capture():
-    data_array = []
-    file_list = os.listdir(DATAFOLDER)
+    _data_array = []
+    _file_list = os.listdir(DATAFOLDER)
 
-    if len(file_list) < FILELIMIT:
-        filelimit_ = len(file_list)
+    if len(_file_list) < FILELIMIT:
+        _filelimit = len(_file_list)
     else:
-        filelimit_ = FILELIMIT
+        _filelimit = FILELIMIT
 
-    for _ in range(filelimit_):
-        with open(os.path.join(DATAFOLDER, file_list[_]), 'r') as afile:
-            buffer = afile.read(BUFFERSIZE)
+    for _ in range(_filelimit):
+        with open(os.path.join(DATAFOLDER, _file_list[_]), 'r') as afile:
+            _buffer = afile.read(BUFFERSIZE)
 
-            while len(buffer) > 0:
-                data_array.append(buffer)
-                buffer = afile.read(BUFFERSIZE)
+            while len(_buffer) > 0:
+                _data_array.append(_buffer)
+                _buffer = afile.read(BUFFERSIZE)
                 afile.close()
 
-    return data_array
-
+    return _data_array
