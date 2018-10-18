@@ -45,23 +45,24 @@ def _blockchain_create(blockchain_name):
 
         return Block(this_timestamp, this_data, this_previous_hash)
 
+    # create the chain segment to add to blockchain table
     def _chain_create(genesis):
+        # retrieve data file details
         file_data_list = file_capture()
-        count = int(len(file_data_list))
 
-        # iterate through blocks creation
-        for _ in range(count):
-            # initialise the blockchain
+        # iterate through block creation
+        for _ in range(int(len(file_data_list))):
+            # initialise the segment
             if _ == 0:
+                # is it a new blockchain?
                 if genesis:
                     # start a new blockchain
                     blockchain = [Block(str(date.datetime.now()), "Genesis Block", "0")]
                     previous_block = blockchain[0]
                 else:
-                    # create blockchain to add to an existing table
+                    # create segment to add to an existing table
                     try:
                         # fetch last block from existing blockchain table
-                        # cur.execute("rollback;")
                         cur.execute("SELECT timestamp, data, previous_hash FROM {} ORDER BY id DESC limit 1;".format(_db_table))
                     except psy.Error as e:
                         cur.execute("rollback;")
@@ -72,10 +73,10 @@ def _blockchain_create(blockchain_name):
                     # use fetched block to create the first block of blockchain to be added to existing table
                     last_row = cur.fetchone()
                     blockchain = []
-                    # fetched block is rehashed to keep data integrity
+                    # fetched block is rehashed for data integrity
                     previous_block = Block(last_row[0], last_row[1], last_row[2])
 
-            # add block to blockchain
+            # add block to blockchain segment
             new_block_ = _new_block(file_data_list[_], previous_block)
             blockchain.append(new_block_)
             previous_block = new_block_
@@ -84,11 +85,12 @@ def _blockchain_create(blockchain_name):
 
     # interact with blockchain database table
     def _db_interaction(create_db):
-        # create blocks to add to database table
+        # create blocks to add to blockchain database table
         blockchain_ = _chain_create(create_db)
         # add blockchain blocks sequentially to blockchain database table
         for block in blockchain_:
             try:
+                # insert segment row into blockchain table
                 cur.execute("INSERT INTO {} (timestamp, data, previous_hash, hash) \
                     VALUES ('{}', '{}', '{}', '{}');".format(_db_table, block.timestamp, block.data, block.previous_hash, block.hash))
             except psy.Error as e:
@@ -97,7 +99,7 @@ def _blockchain_create(blockchain_name):
                 conn.close()
                 print("Error adding block to blockchain table: " + block + "\n" + str(e))
                 sys.exit(1)
-
+        # close the database connection
         conn.commit()
         cur.close()
         conn.close()
@@ -111,7 +113,7 @@ def _blockchain_create(blockchain_name):
         sys.exit(1)
     # try to create new blockchain table
     try:
-        # blockchain table does not exist; is new blockchain
+        # blockchain table does not exist; create new blockchain
         cur.execute("CREATE TABLE {} (id serial PRIMARY KEY, timestamp varchar, \
             data varchar, previous_hash varchar, hash varchar);".format(_db_table))
         print("Blockchain not found; creating chain.")
@@ -124,9 +126,8 @@ def _blockchain_create(blockchain_name):
 
 
 def main():
-    # user prompt for blockchain name and number of blocks to add
+    # user prompt for blockchain name
     blockchain_name_input = input('Enter name of blockchain to create / add to: ')
-
     _blockchain_create(blockchain_name_input)
 
 
