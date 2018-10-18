@@ -21,6 +21,5 @@ def file_capture():
             while len(_buffer) > 0:
                 _data_array.append(_buffer)
                 _buffer = afile.read(BUFFERSIZE)
-                afile.close()
 
     return _data_array
