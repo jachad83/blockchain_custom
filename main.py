@@ -30,12 +30,12 @@ class Block:
 
 
 # takes user input and creates / adds to blockchain table
-def blockchain_create(blockchain_name):
-    db_name = DBNAME
-    db_table = blockchain_name
-    db_user = DBUSER
-    db_host = DBHOST
-    db_password = DBPASSWORD
+def _blockchain_create(blockchain_name):
+    _db_name = DBNAME
+    _db_table = blockchain_name
+    _db_user = DBUSER
+    _db_host = DBHOST
+    _db_password = DBPASSWORD
 
     # create a new data block
     def _new_block(data_, previous_block):
@@ -61,9 +61,12 @@ def blockchain_create(blockchain_name):
                     # create blockchain to add to an existing table
                     try:
                         # fetch last block from existing blockchain table
-                        cur.execute("rollback;")
-                        cur.execute("SELECT timestamp, data, previous_hash FROM {} ORDER BY id DESC limit 1;".format(db_table))
+                        # cur.execute("rollback;")
+                        cur.execute("SELECT timestamp, data, previous_hash FROM {} ORDER BY id DESC limit 1;".format(_db_table))
                     except psy.Error as e:
+                        cur.execute("rollback;")
+                        cur.close()
+                        conn.close()
                         print("Block retrieval failure: \n" +str(e))
                         sys.exit(1)
                     # use fetched block to create the first block of blockchain to be added to existing table
@@ -87,16 +90,21 @@ def blockchain_create(blockchain_name):
         for block in blockchain_:
             try:
                 cur.execute("INSERT INTO {} (timestamp, data, previous_hash, hash) \
-                    VALUES ('{}', '{}', '{}', '{}');".format(db_table, block.timestamp, block.data, block.previous_hash, block.hash))
+                    VALUES ('{}', '{}', '{}', '{}');".format(_db_table, block.timestamp, block.data, block.previous_hash, block.hash))
             except psy.Error as e:
+                cur.execute("rollback;")
+                cur.close()
+                conn.close()
                 print("Error adding block to blockchain table: " + block + "\n" + str(e))
                 sys.exit(1)
 
         conn.commit()
+        cur.close()
+        conn.close()
 
     # try to connect to database
     try:
-        conn = psy.connect(host=db_host, database=db_name, user=db_user, password=db_password)
+        conn = psy.connect(host=_db_host, database=_db_name, user=_db_user, password=_db_password)
         cur = conn.cursor()
     except psy.Error as e:
         print("Database connection failure: \n" + str(e))
@@ -105,11 +113,12 @@ def blockchain_create(blockchain_name):
     try:
         # blockchain table does not exist; is new blockchain
         cur.execute("CREATE TABLE {} (id serial PRIMARY KEY, timestamp varchar, \
-            data varchar, previous_hash varchar, hash varchar);".format(db_table))
+            data varchar, previous_hash varchar, hash varchar);".format(_db_table))
         print("Blockchain not found; creating chain.")
         _db_interaction(True)
     except: # not an error so no exception class
         # blockchain table does exist; adding to existing blockchain
+        cur.execute("rollback;")
         print("Blockchain found; adding to chain.")
         _db_interaction(False)
 
@@ -118,7 +127,7 @@ def main():
     # user prompt for blockchain name and number of blocks to add
     blockchain_name_input = input('Enter name of blockchain to create / add to: ')
 
-    blockchain_create(blockchain_name_input)
+    _blockchain_create(blockchain_name_input)
 
 
 if __name__ == "__main__":
