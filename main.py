@@ -12,6 +12,11 @@ DBUSER = "blockchains_user"
 DBHOST = "localhost"
 DBPASSWORD = "blockchains_pass"
 
+# reader.py variables
+BUFFERSIZE = 65536
+FILELIMIT = 10
+DATAFOLDER = 'data'
+
 
 # define block objects
 class Block:
@@ -48,7 +53,7 @@ def _blockchain_create(blockchain_name):
     # create the chain segment to add to blockchain table
     def _chain_create(genesis):
         # retrieve data file details
-        file_data_list = file_capture()
+        file_data_list = file_capture(buffer=BUFFERSIZE, limit=FILELIMIT, folder=DATAFOLDER)
 
         # iterate through block creation
         for _ in range(int(len(file_data_list))):
