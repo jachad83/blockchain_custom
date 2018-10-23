@@ -2,6 +2,7 @@ import os
 
 
 def file_capture(buffer, limit, folder):
+    """Return list of strings."""
     _data_array = []
     _file_list = os.listdir(folder)
 
