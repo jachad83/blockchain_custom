@@ -29,7 +29,6 @@ class Block:
     # create block hash
     def _hash_block(self):
         hash_string = f'{self.timestamp}{self.data}{self.previous_hash}'
-        print(hash_string)
         sha = hsh.md5(hash_string.encode()).hexdigest()
 
         return sha
