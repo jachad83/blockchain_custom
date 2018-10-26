@@ -42,3 +42,7 @@ The next version will create or update a persistent blockchain with data specifi
 #### Author
 * James Chadwick, 2018
 * Inspiration taken from an article written in Python 2.7 by Gerald Nash, http://www.aunyks.com/
+
+#### License
+* Mozilla Public License 2.0
+* Keep it free and always give credit where its due!
